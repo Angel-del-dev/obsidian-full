@@ -1,0 +1,78 @@
+:root {
+    --icon-text-color: #F5F5F5;
+    --icon-image-color: #5490cb;
+    --icon-hover-bg-color: rgb(160, 156, 156);
+    --details-bg-color: rgba(45,45,45,255);
+}
+
+.icon i {
+    color: var(--icon-image-color);
+}
+
+.modal {
+    border-radius: 10px;
+    background-color: var(--details-bg-color);
+    z-index: 100;
+}
+
+.modal__header {
+    background-color: rgb(100, 99, 99);
+
+    border-top-right-radius: 10px;
+    border-top-left-radius: 10px;
+}
+
+.modal__header__close__button,
+.modal__header__minimize__button,
+.modal__header__maximize__button {
+    border-radius: 50%;
+}
+
+.modal__header__close__button {
+    background-color: #C00
+}
+
+.modal__header__close__button:hover {
+    background-color: rgb(220, 74, 74);
+}
+
+.modal__header__minimize__button {
+    background-color: rgb(1, 108, 1);
+}
+
+.modal__header__minimize__button:hover {
+    background-color: rgb(23, 137, 23);
+}
+
+.modal__header__maximize__button {
+    background-color: rgb(186, 186, 51);
+}
+
+.modal__header__maximize__button:hover {
+    background-color: rgb(247, 247, 99);
+}
+
+.loading__screen {
+    background-color: var(--details-bg-color);
+
+    color: var(--icon-image-color);
+}
+
+.loading__screen::after {
+    content: '';
+
+    width: 75px;
+    height: 75px;
+
+    position: absolute;
+
+    border-bottom: 3px solid red;
+    border-radius: 50%;
+    animation: loading__screen__loader 1s linear infinite;
+    animation-delay: 0;
+}
+
+@keyframes loading__screen__loader {
+    from { rotate: 0; }
+    to { rotate: 360deg; }
+}
