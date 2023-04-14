@@ -13,7 +13,7 @@ const getProperWorkspace = (user_id, url) => {
                     file = { type: 'Text', name };
                 break;
                 default:
-                    file = { type: 'Uknown', name };
+                    file = { type: 'Unknown', name };
                 break;
             }
             return file;

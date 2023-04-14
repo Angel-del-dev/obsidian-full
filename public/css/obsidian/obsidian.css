@@ -9,6 +9,10 @@
     color: var(--icon-image-color);
 }
 
+.icon {
+    color: var(--icon-text-color);
+}
+
 .modal {
     border-radius: 10px;
     background-color: var(--details-bg-color);

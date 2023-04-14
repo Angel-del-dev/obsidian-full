@@ -161,3 +161,30 @@ body {
     border-bottom-left-radius: 10px;
     border-bottom-right-radius: 10px;
 }
+
+#workspace__container {
+    max-width: 100%;
+    max-height: 100%;
+    padding: 20px;
+
+    display: flex;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    flex-direction: row;
+    gap: 10px;
+}
+
+.workspace__item__container {
+    width: 50px;
+    height: 50px;
+
+    border-radius: 10px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.pointer:hover {
+    cursor: pointer;
+}

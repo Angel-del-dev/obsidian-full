@@ -292,18 +292,45 @@ export class LoadFolder {
         });
     }
 
+    #getIconFromType(type) {
+        let icon = 'fa-solid';
+        switch(type) {
+            case 'Folder':
+                icon += ' fa-file-lines';
+            break;
+            case 'Text':
+                icon += ' fa-file-lines';
+            break;
+            case 'Unknown':
+            default:
+                icon += ' fa-file-circle-question';
+            break;
+        }
+        return `${icon} fa-3x`.split(' ');
+    }
+
     #mountFolderInfo(json){
         this.workspace_current_route = json.workspace_current_route;
         const $$modal = $$.select(`#modal__${this.id}`).get(0);
         const $$modal_body = $$.transform($$modal).find('.modal__body')[0];
 
-        json.workspace_content.forEach((workspace_item, i) => {
-            console.log(workspace_item);
-            const item_container = new Element('div', {
-                classes: ['workspace__item__container'],
-                id: `workspace__item__${i}`,
-                appendTo: $$modal_body
+        const workspace__container = new Element('div', {
+            id: 'workspace__container',
+            appendTo: $$modal_body
+        });
+
+        json.workspace_content.forEach(({ type, name }, i) => {
+            const icon = new Element('i', {
+                classes: this.#getIconFromType(type)
             });
+            new Element('div', {
+                attributes: { type: type, title: name },
+                classes: ['workspace__item__container', 'icon', 'pointer'],
+                id: `workspace__item__${i}`,
+                children: [icon],
+                appendTo: $$.select('#workspace__container').get(0)
+            });
+            
         });
     }
 }
