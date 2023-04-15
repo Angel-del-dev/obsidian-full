@@ -8,6 +8,8 @@ const serve = (app, router, passport) => {
     router.get('/', sessionController.sessionMiddleware, views.index);
 
     router.post('/workspace/folder', sessionController.sessionMiddlewareData, folder.get);
+    router.post('/workspace/save-file', sessionController.sessionMiddlewareData, folder.saveFile);
+    router.post('/workspace/read-file', sessionController.sessionMiddlewareData, folder.readFile);
 
     router.get('/login', sessionController.loginForm);
     router.post('/login', passport.authenticate('local', {

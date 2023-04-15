@@ -13,9 +13,9 @@ class Sql {
         });
     }
 
-    query(query, params, callback) {
+    query(query, callback) {
         const con = this.#createConnection();
-        
+    
         con.connect(function(err) {
             if(err) throw err;
             
@@ -24,11 +24,9 @@ class Sql {
                 // if any error while executing above query, throw error
                 if (qErr) throw qErr;
                 // if there is no error, you have the result
-                return callback(result);
+                callback(result);
             });
         });
-        console.log(params);
-        return params;
     }
 }
 

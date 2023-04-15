@@ -30,7 +30,7 @@ function onModal(sType, i, docs) {
     
     switch(sType) {
         case 'folder':
-            new LoadFolder(modal.getIndex(), loader);
+            new LoadFolder(modal.getIndex(), loader, docs);
         break;
         case 'config':
         break;
@@ -49,26 +49,6 @@ function onModal(sType, i, docs) {
 
     const docs = new Doc({
         type: 'down',
-        //icons: {
-        //    'Folder': {
-        //        class: 'fa-solid fa-folder',
-        //        name: 'Folder',
-        //        custom_icon: null,
-        //        action: null
-        //    },
-        //    'Notes': {
-        //        class: 'fa-solid fa-note-sticky',
-        //        name: 'Note',
-        //        custom_icon: null,
-        //        action: null,
-        //    },
-        //    'Config': {
-        //        class: 'fa-solid fa-gear',
-        //        name: 'Config',
-        //        custom_icon: null,
-        //        action: null,
-        //    }
-        //}
     }, showNames);
 
     $$.select('body').listen('contextmenu', (e => {

@@ -2,7 +2,8 @@
     --icon-text-color: #F5F5F5;
     --icon-image-color: #5490cb;
     --icon-hover-bg-color: rgb(160, 156, 156);
-    --details-bg-color: rgba(45,45,45,255);
+    --details-bg-color: rgba(45,45,45, 1);
+    --modal-header-bg: rgb(100, 99, 99);
 }
 
 .icon i {
@@ -20,10 +21,12 @@
 }
 
 .modal__header {
-    background-color: rgb(100, 99, 99);
+    background-color: var(--modal-header-bg);
 
     border-top-right-radius: 10px;
     border-top-left-radius: 10px;
+
+    display: flex;
 }
 
 .modal__header__close__button,
@@ -79,4 +82,68 @@
 @keyframes loading__screen__loader {
     from { rotate: 0; }
     to { rotate: 360deg; }
+}
+
+.workspace__header > input {
+    background-color: rgb(88, 88, 88);
+    color: white;
+}
+
+.workspace__header__actions > button {
+    color: white;
+}
+
+.workspace__header__actions > button:active {
+    color: var(--icon-image-color);
+}
+
+.text__editor__textarea {
+    all: unset;
+    color: white;
+    width: calc(100% - 60px);
+    height: calc(100% - 60px);
+
+    padding: 30px;
+}
+
+.workspace__file__editor__fName {
+    position: relative;
+    left: 40%;
+    top: 50%;
+    transform: translateX(-50%) translateY(-50%);
+    height: calc(100% - 40px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgb(88, 88, 88);
+    color: white;
+    padding: 10px;
+}
+
+.workspace__file__editor__fileName {
+    all: unset;
+    color: white;
+    background-color: rgb(88, 88, 88);
+    background-color: transparent;
+}
+
+ul.context-menu {
+    list-style-type: none;
+    background-color: white;
+    border-radius: 10px;
+
+    width: fit-content;
+    height: fit-content;
+
+    padding: 0;
+}
+
+ul.context-menu > li[disabled="true"] {
+    color: gray;
+    cursor: not-allowed;
+}
+
+ul.context-menu > li[disabled="false"]:hover {
+    cursor: pointer;
+    color: var(--icon-image-color);
 }

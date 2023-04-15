@@ -258,7 +258,8 @@ export class Modal {
 }
 
 export class LoadFolder {
-    constructor(index, loader) {
+    constructor(index, loader, docs) {
+        this.docs = docs;
         this.#setIndex(index);
         this.#setLoader(loader);
         this.#loadFolderDetails();
@@ -296,7 +297,7 @@ export class LoadFolder {
         let icon = 'fa-solid';
         switch(type) {
             case 'Folder':
-                icon += ' fa-file-lines';
+                icon += ' fa-folder';
             break;
             case 'Text':
                 icon += ' fa-file-lines';
@@ -309,13 +310,46 @@ export class LoadFolder {
         return `${icon} fa-3x`.split(' ');
     }
 
+    #mountWorkspaceHeader(cRoute) {
+        const goBackI = new Element('i', {
+            classes: ['fa-solid fa-arrow-left']
+        });
+        const refreshI = new Element('i', {
+            classes: ['fa-solid fa-rotate-left']
+        });
+        const goBack = new Element('button', {
+            classes: ['pointer', 'workspace__goBack'],
+            children: [goBackI]
+        });
+        const refresh = new Element('button', {
+            classes: ['pointer', 'workspace__refresh'],
+            children: [refreshI]
+        });
+        const fButtons = new Element('div', {
+            classes: ['workspace__header__actions'],
+            children: [goBack, refresh]
+        });
+        const fCRoute = new Element('input', {
+            attributes: { disabled: true },
+            value: cRoute.replaceAll('//', '/')
+        });
+        return [fButtons, fCRoute];
+    }
+
     #mountFolderInfo(json){
         this.workspace_current_route = json.workspace_current_route;
-        const $$modal = $$.select(`#modal__${this.id}`).get(0);
-        const $$modal_body = $$.transform($$modal).find('.modal__body')[0];
+        const $$modal_body = $$.select(`#modal__${this.id} .modal__body`).get(0);
+        
+        $$.select(`#modal__${this.id} .modal__body`).clear();
+
+        const workspace_header = new Element('div', {
+            classes: ['workspace__header'],
+            appendTo: $$modal_body,
+            children: this.#mountWorkspaceHeader(json.workspace_current_route)
+        });
 
         const workspace__container = new Element('div', {
-            id: 'workspace__container',
+            classes: ['workspace__container'],
             appendTo: $$modal_body
         });
 
@@ -324,13 +358,197 @@ export class LoadFolder {
                 classes: this.#getIconFromType(type)
             });
             new Element('div', {
-                attributes: { type: type, title: name },
+                attributes: { type: type, title: name, name },
                 classes: ['workspace__item__container', 'icon', 'pointer'],
                 id: `workspace__item__${i}`,
                 children: [icon],
-                appendTo: $$.select('#workspace__container').get(0)
+                appendTo: workspace__container
             });
             
+        });
+        this.#workspace__items__listeners(json.workspace_current_route, json);
+    }
+
+    #workspace__items__listeners(cRoute, json) {
+        const items = $$.select(`#modal__${this.id} .workspace__container div`);
+    
+        items.elements.forEach((item, _) => {
+            item.addEventListener('dblclick', (evt) => {
+                this.#handleDblClick(evt, cRoute);
+            });
+        });
+
+        const goBackBtn = $$.select(`#modal__${this.id} .workspace__goBack`).get(0).closest('button');
+        const refreshBtn = $$.select(`#modal__${this.id} .workspace__refresh`).get(0).closest('button');
+        goBackBtn.addEventListener('click', e => {
+            const rArray = cRoute.split('/');
+            rArray.pop();
+            const nRoute = (rArray.length == 1) ? '/' : rArray.join('/');
+            $$.call({
+                url: '/workspace/folder',
+                method: 'POST',
+                body: { url: nRoute },
+                success: (json) => {
+                    this.#mountFolderInfo(json);
+                },
+                error: (error) => {
+                    console.error(error);
+                }
+            });
+        });
+        refreshBtn.addEventListener('click', e => {
+            $$.call({
+                url: '/workspace/folder',
+                method: 'POST',
+                body: { url: cRoute },
+                success: (json) => {
+                    this.#mountFolderInfo(json);
+                },
+                error: (error) => {
+                    console.error(error);
+                }
+            });
+        });
+
+        const wp = $$.select(`#modal__${this.id} .workspace__container`).get(0);
+        wp.addEventListener('click', e => {
+            if($$.select('.context-menu').elements.length > 0) $$.select('.context-menu').get(0).remove();
+        });
+        wp.addEventListener('contextmenu', e => {
+            e.preventDefault();
+            
+            const item = e.target.closest('.workspace__item__container');
+            
+            if($$.select('.context-menu').elements.length > 0) $$.select('.context-menu').get(0).remove();
+            const ctxtMenu = new Element('ul', {
+                classes: ['context-menu'],
+                appendTo: $$.select('body').get(0)
+            });
+
+            ctxtMenu.style.left = e.pageX + "px"; 
+            ctxtMenu.style.top = e.pageY + "px";
+
+            const options = [
+                    {name: 'New folder', attribute: 'new-folder', disabled: true}, 
+                    {name: 'New file', attribute: 'new-file', disabled: true}, 
+                    {name: 'Remove', attribute: 'remove', disabled: true}, 
+                    {name: 'Rename', attribute: 'rename', disabled: true}
+            ];
+            options.forEach((opt, _) => {
+                new Element('li', {
+                    attributes: { disabled: opt.disabled },
+                    classes: ['ctx__option'],
+                    id: opt.attribute,
+                    text: opt.name,
+                    appendTo: ctxtMenu
+                });
+            });
+
+            this.#workspace__context__listeners(item);
+        });
+    }
+
+    #workspace__context__listeners(item) {
+        // Item: Rename, Remove
+    }
+
+    #handleDblClick(evt, cRoute) {
+        const tElement = evt.target.closest('.workspace__item__container');
+        const elName = tElement.getAttribute('name');
+        const elType = tElement.getAttribute('type');
+        
+        switch(elType) {
+            case 'Text':
+                const amountModals = $$.select('.modal').elements.length + 1;
+                const amountEditors = $$.select('.modal__editor').elements.length + 1;
+                this.docs.add({
+                    class: 'fa-solid fa-file-lines',
+                    name: 'File',
+                    custom_icon: null,
+                    action: null
+                }, `-${amountEditors}`);
+                
+                $$.select(`#modal__${this.id} .modal__backdrop`).get(0).click();
+
+                const modal = new Modal(`-${amountEditors}`);
+
+                this.#generateTextEditor(`#modal__-${amountEditors}`, elName);
+            break;
+            case 'Folder':
+                $$.call({
+                    url: '/workspace/folder',
+                    method: 'POST',
+                    body: { url: `${cRoute}/${elName}` },
+                    success: (json) => {
+                        this.#mountFolderInfo(json);
+                    },
+                    error: (error) => {
+                        console.error(error);
+                    }
+                });
+            break;
+            case 'Unknown':
+            break;
+            default:
+                console.error('Type not defined');
+            break;
+        } 
+    }
+
+    #generateTextEditor(id, fileName) {
+        let route = `${this.workspace_current_route}/`.replaceAll('//', '/');
+        $$.call({
+            url: '/workspace/read-file',
+            method: 'POST',
+            body: { url: route, fName: fileName },
+            success: (json) => {
+                const fName = new Element('input', {
+                    attributes: { disabled: true },
+                    classes: ['workspace__file__editor__fileName'],
+                    value: fileName.replaceAll('//', '/'),
+                });
+
+                const fileNameDiv = new Element('div', {
+                    attributes: { disabled: true },
+                    classes: ['workspace__file__editor__fName'],
+                    children: [fName],
+                    appendTo: $$.select(`${id} .modal__header`).get(0)
+                });
+
+                const editor = new Element('textarea', {
+                    attributes: { placeholder: 'Write some text and save it with `ctrl-s`' },
+                    classes: ['text__editor__textarea'],
+                    value: json.content,
+                    text: json.content,
+                    appendTo: $$.select(`${id} .modal__body`).get(0)
+                });
+                this.#editorListeners(editor, fileName);
+            },
+            error: (error) => {
+                console.error(error);
+            }
+        });
+    }
+
+    #editorListeners(editor, fileName) {
+        editor.addEventListener('keydown', evt => {
+            if ((window.navigator.platform.match("Mac") ? evt.metaKey : evt.ctrlKey)  && evt.keyCode == 83) {
+                // Ctrl+s
+                evt.preventDefault();
+                let route = `${this.workspace_current_route}/`.replaceAll('//', '/');
+                
+                $$.call({
+                    url: '/workspace/save-file',
+                    method: 'POST',
+                    body: { url: route, fName: fileName, content: editor.value },
+                    success: (json) => {
+                        console.log('Saved...');
+                    },
+                    error: (error) => {
+                        console.error(error);
+                    }
+                });
+              }
         });
     }
 }
