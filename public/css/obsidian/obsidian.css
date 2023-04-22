@@ -4,6 +4,7 @@
     --icon-hover-bg-color: rgb(160, 156, 156);
     --details-bg-color: rgba(45,45,45, 1);
     --modal-header-bg: rgb(100, 99, 99);
+    --mate-black: #171717;
 }
 
 .icon i {
@@ -36,7 +37,7 @@
 }
 
 .modal__header__close__button {
-    background-color: #C00
+    background-color: #C00;
 }
 
 .modal__header__close__button:hover {
@@ -213,4 +214,10 @@ input:hover {
 
 .input__wrong:hover {
     border: 1px dashed rgb(220, 74, 74);
+}
+
+/* Utility menu */
+#utility__menu {
+    background-color: var(--mate-black);
+    color: white;
 }

@@ -750,11 +750,18 @@ export class LoadFolder {
                     url: '/workspace/save-file',
                     method: 'POST',
                     body: { url: route, fName: fileName, content: editor.value },
-                    success: (json) => {
-                        console.log('Saved...');
+                    success: (_) => {
+                        editor.style = 'color: rgb(1, 108, 1)';
+                        setTimeout(() => {
+                            editor.style = 'color: white';
+                        }, 1000);
                     },
                     error: (error) => {
                         console.error(error);
+                        editor.style = 'color: #C00';
+                        setTimeout(() => {
+                            editor.style = 'color: white';
+                        }, 1000);
                     }
                 });
               }

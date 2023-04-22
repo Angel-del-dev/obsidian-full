@@ -111,3 +111,69 @@ function onModal(sType, i, docs) {
         
     });
 })();
+(function() {
+    // Menu at the top
+    const version = $$.select('#version').get(0);
+    version.remove();
+    const systemInfo = new Element('div', {
+        id: 'systeminfo',
+        attributes: {title: `Obsidian OS Version ${version}`},
+        text: version.value
+    });
+
+    // Load time
+    const today = new Date();
+    let hours = today.getHours()+'';
+    let minutes = today.getMinutes()+'';
+    const timeText = hours.padStart(2, '0') + ":" + minutes.padStart(2, '0');
+    const month = (today.getMonth()+1)+'';
+    const dateText = today.getDate()+'/'+month.padStart(2, '0')+'/'+today.getFullYear();
+    const time = new Element('time', {
+        text: timeText,
+        id: 'time'
+    });
+    const separator = new Element('span', {
+        classes: ['separator__sides'],
+        text: ' - ',
+    });
+    const date = new Element('span', {
+        text: dateText
+    });
+
+    const timeDay = new Element('div', {
+        id: 'timeDayContainer',
+        children: [time, separator, date]
+    });
+    // Load utility
+    const logout = new Element('i', {
+        classes: ['fa-solid', 'fa-power-off']
+    });
+    logout.addEventListener('click', e => {
+        e.preventDefault();
+        location.href = '/logout';
+    });
+    const utility= new Element('div', {
+        id: 'utility__menu__utility',
+        children: [logout]
+    });
+
+    new Element('div', {
+        id: 'utility__menu',
+        children: [systemInfo, timeDay, utility],
+        appendTo: $$.select('body').get(0)
+    });
+
+    let secondsBoolean = false;
+
+    setInterval(() => {
+        const today = new Date();
+        hours = today.getHours()+'';
+        minutes = today.getMinutes()+'';
+
+        const timeSeparator = (secondsBoolean) ? ':' : ' ';
+
+        const timeText = hours.padStart(2, '0') + timeSeparator + minutes.padStart(2, '0');
+        $$.select('#time').get(0).innerText = timeText;
+        secondsBoolean = !secondsBoolean;
+    }, 1000); // 1 minute
+})();

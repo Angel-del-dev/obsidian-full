@@ -280,3 +280,51 @@ ul.context-menu > li {
 .btn__group {
     width: 100%;
 }
+
+/* Utility menu */
+#utility__menu {
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    width: 100vw;
+    height: 25px;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    -webkit-user-select: none; /* Safari */
+    -ms-user-select: none; /* IE 10 and IE 11 */
+    user-select: none; /* Standard syntax */
+}
+
+#utility__menu * {
+    height: 25px;
+    width: fit-content;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#utility__menu:hover {
+    cursor: default;
+}
+
+.separator__sides {
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
+#utility__menu__utility {
+    translate: -50% 0;
+}
+
+#utility__menu__utility > *:hover {
+    cursor: pointer;
+}
+
+#systeminfo {
+    translate: 20% 0;
+}
