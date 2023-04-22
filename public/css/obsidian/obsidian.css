@@ -147,3 +147,70 @@ ul.context-menu > li[disabled="false"]:hover {
     cursor: pointer;
     color: var(--icon-image-color);
 }
+
+.alert__modal {
+    background-color: rgb(85, 85, 85);
+    border-radius: 15px;
+    box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.2);
+
+    color: var(--icon-text-color);
+}
+
+.alert__modal__body {
+    border-bottom: 1px black;
+    padding: 10px;
+}
+
+input {
+    all: unset;
+    border-radius: 10px;
+    border: 1px solid black;
+    padding: 10px;
+}
+
+input:hover {
+    border: 1px dashed black;
+}
+
+.btn {
+    all: unset;
+    border-radius: 10px;
+    padding: 10px;
+}
+
+.btn:hover {
+    cursor: pointer;
+}
+
+.btn__agree{
+    background-color: rgb(1, 108, 1);
+    transition: background .2s ease-in;
+}
+
+.btn__agree:hover {
+    background-color: rgb(1, 76, 1);
+}
+
+.btn__disagree{
+    background-color: rgb(220, 74, 74);
+    transition: background .2s ease-in;
+}
+
+.btn__disagree:hover {
+    background-color: rgb(152, 50, 50);
+}
+
+.btn__group {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+}
+
+.input__wrong {
+    border: 1px solid rgb(220, 74, 74);
+}
+
+.input__wrong:hover {
+    border: 1px dashed rgb(220, 74, 74);
+}

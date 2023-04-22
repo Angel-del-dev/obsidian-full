@@ -427,12 +427,14 @@ export class LoadFolder {
 
             ctxtMenu.style.left = e.pageX + "px"; 
             ctxtMenu.style.top = e.pageY + "px";
+            
+            const disabled = item === null;
 
             const options = [
-                    {name: 'New folder', attribute: 'new-folder', disabled: true}, 
-                    {name: 'New file', attribute: 'new-file', disabled: true}, 
-                    {name: 'Remove', attribute: 'remove', disabled: true}, 
-                    {name: 'Rename', attribute: 'rename', disabled: true}
+                    {name: 'New folder', attribute: 'new-folder', disabled: false}, 
+                    {name: 'New file', attribute: 'new-file', disabled: false}, 
+                    {name: 'Remove', attribute: 'remove', disabled}, 
+                    {name: 'Rename', attribute: 'rename', disabled}
             ];
             options.forEach((opt, _) => {
                 new Element('li', {
@@ -450,6 +452,213 @@ export class LoadFolder {
 
     #workspace__context__listeners(item) {
         // Item: Rename, Remove
+        const route = this.workspace_current_route.replaceAll('//', '/');
+        const newRoute = (route.length > 1) ? `${route}/` : route;
+
+        $$.select('#new-folder').listen('click', e => {
+            $$.select('.context-menu').get(0).remove();
+            const label = new Element('label', {
+                text: 'A folder name must be provided'
+            });
+            const input = new Element('input', {
+                attributes: { placeholder: 'Provide a name' },
+                style: 'width: 50% !important; margin-top: 20px;'
+            });
+            const buttonAccept = new Element('button', {
+                text: 'Create',
+                classes: ['btn', 'btn__agree']
+            });
+
+            const buttonClose = new Element('button', {
+                text: 'Cancel',
+                classes: ['btn', 'btn__disagree']
+            });
+
+            buttonClose.addEventListener('click', e => {
+                e.target.closest('.alert__modal').remove();
+            });
+
+            const btn__group = new Element('div', {
+                classes: ['btn__group'],
+                children: [buttonClose, buttonAccept]
+            });
+            
+            const newFolderAlert = new Alert({
+                body: [label, input],
+                footer: [btn__group]
+            });
+
+            buttonAccept.addEventListener('click', _ => {
+                if(input.value.length == 0 || input.value.includes('.')) return input.classList.add('input__wrong');
+                input.classList.remove('input__wrong');
+                const folderName = input.value.trim();
+                
+                $$.call({
+                    url: '/workspace/create-folder',
+                    method: 'POST',
+                    body: { url: newRoute, folderName },
+                    success: ({code, msg}) => {
+                        if(code === 200) {
+                            $$.select(`#modal__${this.id} .workspace__refresh`).get(0).click();
+                            return newFolderAlert.destroy();
+                        }
+
+                        input.classList.add('input__wrong');
+                    },
+                    error: (error) => {
+                        console.error(error);
+                    }
+                });
+            });
+            
+        });
+        $$.select('#remove').listen('click', e => {
+            if(e.target.getAttribute('disabled') === 'true') return;
+            $$.select('.context-menu').get(0).remove();
+            const type = item.getAttribute('type');
+            const name = item.getAttribute('name');
+            
+            $$.call({
+                url: '/workspace/remove-folder',
+                method: 'POST',
+                body: { url: newRoute, name, type },
+                success: ({code, msg}) => {
+                    if(code === 200) return $$.select(`#modal__${this.id} .workspace__refresh`).get(0).click();
+                },
+                error: (error) => {
+                    console.error(error);
+                }
+            });
+        });
+
+        $$.select('#new-file').listen('click', e => {
+            $$.select('.context-menu').get(0).remove();
+            const label = new Element('label', {
+                text: 'A file name must be provided with its own extension'
+            });
+            const input = new Element('input', {
+                attributes: { placeholder: 'Provide a name' },
+                style: 'width: 50% !important; margin-top: 20px;'
+            });
+            
+            const buttonAccept = new Element('button', {
+                text: 'Create',
+                classes: ['btn', 'btn__agree']
+            });
+
+            const buttonClose = new Element('button', {
+                text: 'Cancel',
+                classes: ['btn', 'btn__disagree']
+            });
+
+            buttonClose.addEventListener('click', e => {
+                e.target.closest('.alert__modal').remove();
+            });
+
+            const btn__group = new Element('div', {
+                classes: ['btn__group'],
+                children: [buttonClose, buttonAccept]
+            });
+            
+            const newFileAlert = new Alert({
+                body: [label, input],
+                footer: [btn__group]
+            });
+
+            buttonAccept.addEventListener('click', _ => {
+                if(!input.value.includes('.') || input.value.indexOf('.') == 0) {
+                    return input.classList.add('input__wrong');
+                }
+                
+                input.classList.remove('input__wrong');
+                const fileName = input.value.trim();
+                
+                $$.call({
+                    url: '/workspace/create-file',
+                    method: 'POST',
+                    body: { url: newRoute, fileName },
+                    success: ({code, msg}) => {
+                        if(code === 200) {
+                            $$.select(`#modal__${this.id} .workspace__refresh`).get(0).click();
+                            return newFileAlert.destroy();
+                        }
+
+                        input.classList.add('input__wrong');
+                    },
+                    error: (error) => {
+                        console.error(error);
+                    }
+                });
+            });
+        });
+
+        $$.select('#rename').listen('click', e => {
+            const type = item.getAttribute('type');
+            const type__txt = (type === 'Folder') ? type.toLowerCase()+', no extension can be given' : 'file, name and file extension must be provided';
+            $$.select('.context-menu').get(0).remove();
+            const label = new Element('label', {
+                text: `Rename ${type__txt}: `
+            });
+            const input = new Element('input', {
+                attributes: { placeholder: 'Provide a name' },
+                style: 'width: 50% !important; margin-top: 20px;',
+                value: item.getAttribute('name')
+            });
+            
+            const buttonAccept = new Element('button', {
+                text: 'Create',
+                classes: ['btn', 'btn__agree']
+            });
+
+            const buttonClose = new Element('button', {
+                text: 'Cancel',
+                classes: ['btn', 'btn__disagree']
+            });
+
+            buttonClose.addEventListener('click', e => {
+                e.target.closest('.alert__modal').remove();
+            });
+
+            const btn__group = new Element('div', {
+                classes: ['btn__group'],
+                children: [buttonClose, buttonAccept]
+            });
+            
+            const newFileAlert = new Alert({
+                body: [label, input],
+                footer: [btn__group]
+            });
+
+            buttonAccept.addEventListener('click', _ => {
+                if(type != 'Folder' && !input.value.includes('.') || input.value.indexOf('.') == 0) {
+                    return input.classList.add('input__wrong');
+                }
+                if(type == 'Folder' && input.value.includes('.')){
+                    return input.classList.add('input__wrong');
+                }
+                
+                input.classList.remove('input__wrong');
+                const newName = input.value.trim();
+                const oldName = item.getAttribute('name');
+                
+                $$.call({
+                    url: '/workspace/rename',
+                    method: 'POST',
+                    body: { url: newRoute, newName, type, oldName },
+                    success: ({code, msg}) => {
+                        if(code === 200) {
+                            $$.select(`#modal__${this.id} .workspace__refresh`).get(0).click();
+                            return newFileAlert.destroy();
+                        }
+
+                        input.classList.add('input__wrong');
+                    },
+                    error: (error) => {
+                        console.error(error);
+                    }
+                });
+            });
+        });
     }
 
     #handleDblClick(evt, cRoute) {
@@ -554,3 +763,43 @@ export class LoadFolder {
 }
 
 // End Docs
+
+// Start Alert
+
+export class Alert {
+    constructor(config){
+        this.config = config;
+        this.#mountAlert();
+    }
+    destroy() {
+        $$.select(`#${this.id}`).get(0).remove();
+    }
+    #mountAlert() {
+        const id = $$.select('.alert__modal').elements.length + 1;
+        this.id = `alert__${id}`;
+
+        const alertBody = new Element('div', {
+            classes: ['alert__modal__body'],
+            children: this.config.body ?? []
+        });
+
+        const alertFooter = new Element('div', {
+            classes: ['alert__modal__footer'],
+            children: this.config.footer ?? []
+        });
+
+        const alertWrap = new Element('div', {
+            classes: ['alert__modal__wrapper'],
+            children: [alertBody, alertFooter]
+        });
+
+        new Element('div', {
+            id: this.id,
+            classes: ['alert__modal'],
+            children: [alertWrap],
+            appendTo: $$.select('body').get(0)
+        });
+    }
+}
+
+// End Alert
